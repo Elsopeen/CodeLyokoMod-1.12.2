@@ -1,16 +1,16 @@
 buildscript {
     repositories {
+        maven { url = "https://files.minecraftforge.net/maven" }
         jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" } 
-		
-		
+        mavenCentral()
+
+
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-		
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'maven'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
@@ -25,47 +25,82 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.5.2847"
-    runDir = "run"
-    
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20171003"
+    mappings channel: "stable", version: "39-1.12"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                codelyoko {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                codelyoko {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 repositories {
-jcenter()
-	maven {
-		url "http://maven.shadowfacts.net/"
-	}
-	  
-	  maven { name = "CoFH Maven" 
-		url = "http://maven.covers1624.net" }
- 
+    jcenter()
+    maven {
+        url "http://maven.shadowfacts.net/"
+    }
 
-  maven {
-    // location of the maven that hosts JEI files
-    name = "Progwml6 maven"
-    url = "http://dvs1.progwml6.com/files/maven"
-  }
-  maven {
-    // location of a maven mirror for JEI files, as a fallback
-    name = "ModMaven"
-    url = "modmaven.k-4u.nl"
-  }
-  ivy {url = "./libs"} 
+    /*maven {
+        name = "CoFH Maven"
+        url = "http://maven.covers1624.net"
+    }*/
+
+
+    maven {
+        // location of the maven that hosts JEI files
+        name = "Progwml6 maven"
+        url = "http://dvs1.progwml6.com/files/maven/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "modmaven.k-4u.nl"
+    }
+    ivy { url = "./libs" }
 }
 dependencies {
 
- deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal" 
- compile group: "net.shadowfacts", name: "Forgelin", version: "1.8.4"
-     // compile against the JEI API but do not include it at runtime
-  deobfProvided "mezz.jei:jei_${mc_version}:${jei_version}:api"
-  // at runtime, use the full JEI jar
-  runtime "mezz.jei:jei_${mc_version}:${jei_version}"
+    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2854"
+
+    //deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
+    compile group: "net.shadowfacts", name: "Forgelin", version: "1.8.4"
+    // compile against the JEI API but do not include it at runtime
+    deobf "mezz.jei:jei_${mc_version}:${jei_version}:api"
+    // at runtime, use the full JEI jar
+    runtime "mezz.jei:jei_${mc_version}:${jei_version}"
     // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
     //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
 
@@ -77,24 +112,23 @@ dependencies {
     // for more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
 }
 
-processResources {
+/*processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+    inputs.property "mcversion", Integer.parseInt(project.minecraft.mappings.get("version"))
 
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+        expand 'version': project.version, 'mcversion': project.minecraft.version
     }
-        
+
     // copy everything else except the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-}
+}*/
